@@ -1,0 +1,24 @@
+{
+    "Easy": [
+      { "spanish": "Hola", "english": "Hello" },
+      { "spanish": "Gato", "english": "Cat" },
+      { "spanish": "Perro", "english": "Dog" },
+      { "spanish": "Mesa", "english": "Table" },
+      { "spanish": "Libro", "english": "Book" }
+    ],
+    "Medium": [
+      { "spanish": "Zapato", "english": "Shoe" },
+      { "spanish": "Calle", "english": "Street" },
+      { "spanish": "Ventana", "english": "Window" },
+      { "spanish": "Puerta", "english": "Door" },
+      { "spanish": "Camino", "english": "Path" }
+    ],
+    "Hard": [
+      { "spanish": "Bocadillo", "english": "Sandwich" },
+      { "spanish": "Reloj", "english": "Watch" },
+      { "spanish": "Computadora", "english": "Computer" },
+      { "spanish": "Lámpara", "english": "Lamp" },
+      { "spanish": "Camarón", "english": "Shrimp" }
+    ]
+  }
+  
