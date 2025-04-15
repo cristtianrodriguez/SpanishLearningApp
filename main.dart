@@ -1,114 +1,120 @@
 import 'package:flutter/material.dart';
-import 'model.dart'; // Import the model
+import 'flashcard_list.dart'; // Import the FlashcardList
+import 'flashcard.dart'; // Import the Flashcard class
 
 void main() {
-  runApp(SpanishLearningApp());
+  runApp(const SpanishLearningApp());
 }
 
 class SpanishLearningApp extends StatelessWidget {
+  const SpanishLearningApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Spanish Learning App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   TextEditingController _controller = TextEditingController();
-  FlashcardModel model = FlashcardModel(); // Instance of model
+  FlashcardList flashcardList = FlashcardList();
+  int currentFlashcardIndex = 0;
+  String selectedOption = '';
+  String name = '';
 
   @override
   void initState() {
     super.initState();
-    model.loadFlashcardsData(); // Load flashcards when the app starts
-  }
 
-  // Function to navigate to the level selection screen
-  void openLevelSelection(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => LevelSelectionScreen(
-              onLevelChanged: (level) {
-                setState(() {
-                  model.setLevel(level);
-                  model
-                      .loadFlashcardsData(); // Reload flashcards for the selected level
-                });
-
-                // After selecting a level, navigate to Flashcards screen
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FlashcardsScreen(model: model),
-                  ),
-                );
-              },
-            ),
+    // Load hardcoded flashcards
+    flashcardList.addFlashcard(
+      Flashcard(
+        spanish: 'Hola',
+        english: 'Hello',
+        options: ['Hello', 'Cat', 'Dog', 'Book'],
+        correctOption: 'Hello',
+      ),
+    );
+    flashcardList.addFlashcard(
+      Flashcard(
+        spanish: 'Gato',
+        english: 'Cat',
+        options: ['Hello', 'Cat', 'Dog', 'Table'],
+        correctOption: 'Cat',
+      ),
+    );
+    flashcardList.addFlashcard(
+      Flashcard(
+        spanish: 'Perro',
+        english: 'Dog',
+        options: ['Table', 'Book', 'Dog', 'Lamp'],
+        correctOption: 'Dog',
+      ),
+    );
+    flashcardList.addFlashcard(
+      Flashcard(
+        spanish: 'Mesa',
+        english: 'Table',
+        options: ['Lamp', 'Book', 'Table', 'Dog'],
+        correctOption: 'Table',
+      ),
+    );
+    flashcardList.addFlashcard(
+      Flashcard(
+        spanish: 'Libro',
+        english: 'Book',
+        options: ['Pen', 'Book', 'Table', 'Lamp'],
+        correctOption: 'Book',
       ),
     );
   }
 
-  // Function to show coming soon message
-  void showComingSoonMessage() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Coming Soon"),
-          content: Text("This feature is soon to be developed."),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close the dialog
-              },
-              child: Text("OK"),
-            ),
-          ],
-        );
-      },
+  void openFlashcardsPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FlashcardPage(flashcardList: flashcardList),
+      ),
     );
   }
 
-  // Function to reset user progress
   void resetProgress() {
     setState(() {
-      model.resetProgress();
       _controller.clear();
       _controller.text = "Enter your name";
+      name = '';
+      selectedOption = '';
+      currentFlashcardIndex = 0;
     });
-    print("Progress has been reset");
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Spanish Learning App")),
+      appBar: AppBar(title: const Text("Spanish Learning App")),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
               "Spanish Learning App",
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 20),
-            Text("Enter your name:", style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 20),
+            const Text("Enter your name:", style: TextStyle(fontSize: 18)),
             TextField(
               controller: _controller,
               decoration: InputDecoration(
@@ -123,149 +129,158 @@ class _MyHomePageState extends State<MyHomePage> {
                 }
               },
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () async {
-                String name = _controller.text;
-                if (name.isNotEmpty && name != "Enter your name") {
-                  await model.saveProgress(
-                    name,
-                  ); // Save progress using the model
-                  print("Name entered: $name");
-                }
+              onPressed: () {
+                setState(() {
+                  name = _controller.text;
+                });
               },
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                textStyle: TextStyle(fontSize: 14),
-                minimumSize: Size(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 8,
+                ),
+                textStyle: const TextStyle(fontSize: 14),
+                minimumSize: const Size(
                   180,
                   40,
                 ), // Smaller size for the "Select" button
               ),
-              child: Text("Select"),
+              child: const Text("Select"),
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             // Buttons for Flashcards, Quizzes, Grammar, Progress, Reset (same size)
-            _buildCommonButton("Flashcards", () => openLevelSelection(context)),
-            SizedBox(height: 10),
-            _buildCommonButton("Quizzes", showComingSoonMessage),
-            SizedBox(height: 10),
-            _buildCommonButton("Grammar", showComingSoonMessage),
-            SizedBox(height: 10),
-            _buildCommonButton("Progress", showComingSoonMessage),
-            SizedBox(height: 40),
-            // Reset button
-            _buildCommonButton("Reset", resetProgress),
+            ElevatedButton(
+              onPressed: () => openFlashcardsPage(context),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 50,
+                  vertical: 15,
+                ),
+                textStyle: const TextStyle(fontSize: 18),
+                minimumSize: const Size(200, 50), // Same size for all buttons
+              ),
+              child: const Text("Flashcards"),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: resetProgress,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 50,
+                  vertical: 15,
+                ),
+                textStyle: const TextStyle(fontSize: 18),
+                minimumSize: const Size(200, 50), // Same size for all buttons
+              ),
+              child: const Text("Reset"),
+            ),
           ],
         ),
       ),
     );
   }
-
-  // Common button builder function to ensure all buttons are the same size
-  ElevatedButton _buildCommonButton(String text, Function onPressed) {
-    return ElevatedButton(
-      onPressed: () => onPressed(),
-      style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-        textStyle: TextStyle(fontSize: 18),
-        minimumSize: Size(200, 50), // Same size for all buttons
-      ),
-      child: Text(text),
-    );
-  }
 }
 
-class LevelSelectionScreen extends StatelessWidget {
-  final Function(String) onLevelChanged;
+class FlashcardPage extends StatefulWidget {
+  final FlashcardList flashcardList;
+  const FlashcardPage({super.key, required this.flashcardList});
 
-  LevelSelectionScreen({required this.onLevelChanged});
+  @override
+  State<FlashcardPage> createState() => _FlashcardPageState();
+}
+
+class _FlashcardPageState extends State<FlashcardPage> {
+  late Flashcard currentFlashcard;
+  String selectedOption = '';
+  int currentIndex = 0;
+  String feedback = '';
+
+  @override
+  void initState() {
+    super.initState();
+    currentFlashcard = widget.flashcardList.getFlashcardAt(currentIndex);
+  }
+
+  void nextFlashcard() {
+    setState(() {
+      if (currentIndex < widget.flashcardList.length - 1) {
+        currentIndex++;
+        currentFlashcard = widget.flashcardList.getFlashcardAt(currentIndex);
+        selectedOption = ''; // Reset selected option for the next card
+        feedback = ''; // Reset feedback for next card
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Choose Difficulty Level")),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                "Select Difficulty Level",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 40),
-              _buildLevelButton("Easy", context),
-              SizedBox(height: 10),
-              _buildLevelButton("Medium", context),
-              SizedBox(height: 10),
-              _buildLevelButton("Hard", context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Helper to create the level buttons
-  ElevatedButton _buildLevelButton(String level, BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        onLevelChanged(level);
-        Navigator.pop(context);
-      },
-      style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-        textStyle: TextStyle(fontSize: 18),
-        minimumSize: Size(200, 50),
-      ),
-      child: Text(level),
-    );
-  }
-}
-
-class FlashcardsScreen extends StatelessWidget {
-  final FlashcardModel model;
-
-  FlashcardsScreen({required this.model});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Flashcards")),
+      appBar: AppBar(title: const Text("Flashcards")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             Text(
-              "Flashcards for ${model.selectedLevel} Level",
-              style: TextStyle(fontSize: 24),
+              "Flashcard: ${currentFlashcard.spanish}",
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 40),
+            // Display the answer options as buttons
+            ...currentFlashcard.options.map((option) {
+              return ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    selectedOption = option; // Set selected option
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
+                    vertical: 15,
+                  ),
+                  backgroundColor:
+                      selectedOption == option
+                          ? Colors.blue
+                          : Colors.grey, // Highlight selected option
+                  textStyle: const TextStyle(fontSize: 18),
+                  minimumSize: const Size(200, 50),
+                ),
+                child: Text(option),
+              );
+            }).toList(),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Map<String, String> flashcard = model.getRandomFlashcard();
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text(flashcard.keys.first),
-                      content: Text(flashcard.values.first),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context); // Close the dialog
-                          },
-                          child: Text("OK"),
-                        ),
-                      ],
-                    );
-                  },
-                );
+                // Show if the selected option is correct or not
+                setState(() {
+                  if (selectedOption == currentFlashcard.correctOption) {
+                    feedback = 'Correct!';
+                  } else {
+                    feedback =
+                        'Incorrect! Correct answer: ${currentFlashcard.correctOption}';
+                  }
+                });
+
+                // Wait for a brief moment, then go to next card
+                Future.delayed(const Duration(seconds: 2), () {
+                  nextFlashcard();
+                });
               },
-              child: Text("Show Random Flashcard"),
+              child: const Text("Select"),
             ),
+            if (feedback.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              Text(
+                feedback,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: feedback == 'Correct!' ? Colors.green : Colors.red,
+                ),
+              ),
+            ],
           ],
         ),
       ),
